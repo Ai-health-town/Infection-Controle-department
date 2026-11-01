@@ -6,6 +6,11 @@ import datetime
 import urllib.request
 import urllib.error
 import os
+import base64
+import io
+import warnings
+from html import escape
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 # ---------------------------------------------------------
 # إعدادات المنصة الأساسية
@@ -65,6 +70,56 @@ st.markdown("""
     }
     section[data-testid="stSidebar"] * {
         color: #f8fafc !important;
+    }
+
+    /* تاريخ واضح بدلاً من النص الأبيض فوق خلفية فاتحة */
+    .portal-date {
+        background: #f0fdfa;
+        border: 1px solid #99f6e4;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+    }
+    .portal-date .date-label,
+    section[data-testid="stSidebar"] .portal-date .date-label {
+        color: #115e59 !important;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .portal-date .date-value,
+    section[data-testid="stSidebar"] .portal-date .date-value {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        font-size: 21px;
+        font-weight: 800;
+        margin-top: 4px;
+        direction: ltr;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+    [data-testid="stDateInput"] input {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        background-color: #ffffff !important;
+        direction: ltr;
+        font-weight: 700;
+        color-scheme: light;
+    }
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"],
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] * {
+        color: #0f172a !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {
+        background: #f8fafc !important;
+        border: 1px dashed #94a3b8;
+        border-radius: 14px;
+    }
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button {
+        color: #0f172a !important;
+        background: #ffffff !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stAlertContainer"] * {
+        color: #0f172a !important;
     }
     
     /* بطاقة البروفايل في القائمة الجانبية */
@@ -344,6 +399,11 @@ st.markdown("""
         font-size: 15.5px !important;
         padding: 12px 22px !important;
     }
+    @media (max-width: 640px) {
+        .exec-banner { padding: 24px 20px; }
+        .exec-banner h1 { font-size: 25px !important; }
+        .member-card > div { flex-wrap: wrap; gap: 12px; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -459,6 +519,112 @@ def init_db():
 init_db()
 
 # ---------------------------------------------------------
+# التاريخ المحلي وصور الأعضاء (تُحفظ الصورة داخل قاعدة البيانات الحالية)
+# ---------------------------------------------------------
+PORTAL_TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
+MAX_PHOTO_PIXELS = 20_000_000
+DEFAULT_PHOTO = TEAM_MEMBERS_SEED[0][-1]
+
+def portal_now():
+    return datetime.datetime.now(PORTAL_TIMEZONE)
+
+def reporting_period_text(week_num, year):
+    try:
+        start = datetime.date.fromisocalendar(int(year), int(week_num), 1)
+    except (TypeError, ValueError):
+        # بعض السجلات القديمة قد تتضمن أسبوع 53 في سنة لا تحتويه.
+        return f"الأسبوع {week_num} / {year}"
+    end = start + datetime.timedelta(days=6)
+    return f"{start:%d/%m/%Y} — {end:%d/%m/%Y}"
+
+def prepare_profile_photo(raw_bytes):
+    """التحقق من محتوى الصورة، تصحيح اتجاهها، وضغطها دون بياناتها الوصفية."""
+    if not raw_bytes or len(raw_bytes) > MAX_PHOTO_BYTES:
+        raise ValueError("اختر صورة لا يتجاوز حجمها 5 ميجابايت.")
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(io.BytesIO(raw_bytes)) as source:
+                if source.format not in {"JPEG", "PNG", "WEBP"}:
+                    raise ValueError("الصيغ المدعومة: JPG وPNG وWEBP فقط.")
+                if source.width * source.height > MAX_PHOTO_PIXELS:
+                    raise ValueError("أبعاد الصورة كبيرة جداً. اختر نسخة أصغر من 20 ميجابكسل.")
+                source.verify()
+            with Image.open(io.BytesIO(raw_bytes)) as source:
+                image = ImageOps.exif_transpose(source).convert("RGBA")
+                image.thumbnail((512, 512), Image.Resampling.LANCZOS)
+                background = Image.new("RGB", image.size, "white")
+                background.paste(image, mask=image.getchannel("A"))
+                output = io.BytesIO()
+                background.save(output, format="JPEG", quality=88, optimize=True)
+        return "data:image/jpeg;base64," + base64.b64encode(output.getvalue()).decode("ascii")
+    except (UnidentifiedImageError, OSError, SyntaxError,
+            Image.DecompressionBombError, Image.DecompressionBombWarning) as exc:
+        raise ValueError("تعذر قراءة الصورة. اختر صورة سليمة بصيغة JPG أو PNG أو WEBP.") from exc
+
+def save_my_profile_photo(photo_url):
+    """تحديث صورة صاحب الجلسة فقط دون تغيير بيانات الحساب أو التقارير."""
+    if not st.session_state.get("authenticated") or not st.session_state.get("user"):
+        raise PermissionError("يرجى تسجيل الدخول أولاً.")
+    user_id = st.session_state.user['id']
+    conn = get_db_connection()
+    try:
+        with conn:
+            result = conn.execute("UPDATE users SET photo_url = ? WHERE id = ?", (photo_url, user_id))
+            if result.rowcount != 1:
+                raise ValueError("لم يتم العثور على الحساب.")
+    finally:
+        conn.close()
+    st.session_state.user['photo_url'] = photo_url
+
+def render_profile_photo_settings(current_user):
+    message = st.session_state.pop("profile_photo_message", None)
+    revision = st.session_state.get("profile_photo_revision", 0)
+    with st.expander("🖼️ تغيير صورتي", expanded=bool(message)):
+        if message:
+            st.success(message)
+        st.caption("اختر صورة من جهازك بصيغة JPG أو PNG أو WEBP، بحد أقصى 5 ميجابايت.")
+        uploaded = st.file_uploader(
+            "الصورة الشخصية الجديدة",
+            type=["jpg", "jpeg", "png", "webp"],
+            key=f"profile_photo_{current_user['id']}_{revision}"
+        )
+        prepared = None
+        if uploaded is not None:
+            try:
+                if uploaded.size > MAX_PHOTO_BYTES:
+                    raise ValueError("حجم الصورة أكبر من 5 ميجابايت. اختر صورة أصغر.")
+                prepared = prepare_profile_photo(uploaded.getvalue())
+                preview = base64.b64decode(prepared.split(",", 1)[1])
+                st.image(preview, caption="معاينة الصورة قبل الحفظ", width=140)
+            except ValueError as exc:
+                st.error(str(exc))
+        if st.button("💾 حفظ صورتي", key="save_my_photo", disabled=prepared is None, use_container_width=True):
+            try:
+                save_my_profile_photo(prepared)
+            except (sqlite3.Error, ValueError):
+                st.error("تعذر حفظ الصورة الآن. يرجى المحاولة مرة أخرى.")
+            else:
+                st.session_state.profile_photo_revision = revision + 1
+                st.session_state.profile_photo_message = "تم تحديث صورتك بنجاح ✅"
+                st.rerun()
+        if (current_user.get('photo_url') or '').startswith("data:image/"):
+            if st.button("↩️ استعادة الصورة الافتراضية", key="reset_my_photo", use_container_width=True):
+                default_photo = next(
+                    (member[-1] for member in TEAM_MEMBERS_SEED if member[0].lower() == current_user['username'].lower()),
+                    DEFAULT_PHOTO
+                )
+                try:
+                    save_my_profile_photo(default_photo)
+                except (sqlite3.Error, ValueError):
+                    st.error("تعذر استعادة الصورة الآن. يرجى المحاولة مرة أخرى.")
+                else:
+                    st.session_state.profile_photo_revision = revision + 1
+                    st.session_state.profile_photo_message = "تمت استعادة الصورة الافتراضية ✅"
+                    st.rerun()
+
+# ---------------------------------------------------------
 # محرك التلخيص التنفيذي الذكي (للإدارة ورئيس القسم)
 # ---------------------------------------------------------
 def build_executive_summary(reports_list, week_num, year):
@@ -486,7 +652,7 @@ def build_executive_summary(reports_list, week_num, year):
     challenges_text = "\n".join(all_challenges) if all_challenges else "✅ الوضع الوبائي والوقائي مستقر، ولا توجد ملاحظات حرجة مسجلة هذا الأسبوع."
     plans_text = "\n".join(all_plans) if all_plans else "مواصلة خطط الترصد الميداني والتدقيق الدوري المعتادة."
     
-    return f"""### 🏥 التقرير التنفيذي الموحد لقسم مكافحة العدوى — الأسبوع ({week_num} / {year})
+    return f"""### 🏥 التقرير التنفيذي الموحد لقسم مكافحة العدوى — الفترة {reporting_period_text(week_num, year)}
 **إعداد واعتماد:** د. الوليد الرقيبة — رئيس قسم مكافحة العدوى
 
 ---
@@ -528,22 +694,21 @@ def login(username, password):
     user = c.fetchone()
     conn.close()
     if user:
-        if user['password_hash'] == pwd_hash or (user['role'] in ['admin', 'head_employee'] and password.strip() in ['1234', 'admin123']):
+        if user['password_hash'] == pwd_hash:
             st.session_state.authenticated = True
             st.session_state.user = dict(user)
             return True
     return False
 
 def logout():
-    st.session_state.authenticated = False
-    st.session_state.user = None
+    st.session_state.clear()
     st.rerun()
 
 # ---------------------------------------------------------
 # دالة عرض واجهة الموظف (نموذج التقرير الأسبوعي بدون مؤشر نسبة الالتزام)
 # ---------------------------------------------------------
 def render_employee_portal(target_user):
-    today = datetime.date.today()
+    today = portal_now().date()
     current_year, current_week, _ = today.isocalendar()
     
     # معرض مصور لأقسام مكافحة العدوى يضفي فخامة بصرية للمنصة
@@ -587,20 +752,26 @@ def render_employee_portal(target_user):
         conn.close()
         
         if existing_report:
-            st.success(f"✅ تم استلام تقريرك للأسبوع رقم ({current_week}) بتاريخ {existing_report['date_submitted']}. يمكنك تعديل وتحديث التقرير في أي وقت:")
+            st.success(f"✅ تم استلام تقريرك للفترة {reporting_period_text(current_week, current_year)} بتاريخ {existing_report['date_submitted']}. يمكنك تعديل وتحديث التقرير:")
             
         with st.form(f"emp_report_form_{target_user['id']}"):
             st.markdown("#### 📅 الفترة الزمنية والنشاط الميداني")
-            c_w1, c_w2, c_w3 = st.columns(3)
+            # تُحسب الفترة تلقائياً؛ لا حاجة لإدخال رقم الأسبوع أو السنة يدوياً.
+            week_num, year_val = current_week, current_year
+            c_w1, c_w2 = st.columns(2)
             with c_w1:
-                week_num = st.number_input("رقم الأسبوع", min_value=1, max_value=53, value=current_week)
+                st.markdown(f"""
+                <div class="portal-date">
+                    <div class="date-label">📅 تاريخ التقرير</div>
+                    <div class="date-value">{today:%d/%m/%Y}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                st.caption(f"الفترة الأسبوعية: {reporting_period_text(current_week, current_year)} — تُحدد تلقائياً.")
             with c_w2:
-                year_val = st.number_input("السنة الميلادية", min_value=2024, max_value=2030, value=current_year)
-            with c_w3:
                 audits_count = st.number_input(
                     "🔍 عدد الجولات الميدانية / التدقيقات المنفذة",
                     min_value=0, max_value=250,
-                    value=existing_report['audits_count'] if existing_report else 6
+                    value=existing_report['audits_count'] if existing_report else 0
                 )
                 
             st.markdown("#### 📋 تفاصيل التقرير الأسبوعي")
@@ -630,7 +801,7 @@ def render_employee_portal(target_user):
                 if not accomplishments.strip():
                     st.error("⚠️ يرجى كتابة إنجازات الأسبوع قبل اعتماد التقرير.")
                 else:
-                    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                    now_str = portal_now().strftime("%Y-%m-%d %H:%M")
                     conn = get_db_connection()
                     c = conn.cursor()
                     if existing_report:
@@ -663,7 +834,7 @@ def render_employee_portal(target_user):
             st.info("لا توجد تقارير سابقة مسجلة في أرشيفك حتى الآن.")
         else:
             for rep in my_reports:
-                with st.expander(f"📅 تقرير الأسبوع ({rep['week_num']}) لعام {rep['year']} — تاريخ الرفع: {rep['date_submitted']}"):
+                with st.expander(f"📅 تقرير الفترة {reporting_period_text(rep['week_num'], rep['year'])} — تاريخ الرفع: {rep['date_submitted']}"):
                     st.markdown(f"**🔍 عدد الجولات الميدانية المنفذة:** `{rep['audits_count']}` جولات")
                     st.markdown(f"**🏆 الإنجازات:**\n{rep['accomplishments']}")
                     st.markdown(f"**⚠️ التحديات والملاحظات:**\n{rep['challenges'] or 'لا توجد ملاحظات'}")
@@ -673,7 +844,7 @@ def render_employee_portal(target_user):
 # دالة عرض لوحة تحكم رئيس القسم / الأدمن (مع تقييم نسبة الالتزام خاص بالأدمن فقط)
 # ---------------------------------------------------------
 def render_admin_portal():
-    today = datetime.date.today()
+    today = portal_now().date()
     current_year, current_week, _ = today.isocalendar()
     
     tab_dash, tab_details, tab_ai, tab_team = st.tabs([
@@ -762,10 +933,10 @@ def render_admin_portal():
             <div class="member-card">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center;">
-                        <img src="{photo}" class="member-photo" alt="avatar"/>
+                        <img src="{escape(photo, quote=True)}" class="member-photo" alt="الصورة الشخصية"/>
                         <div>
-                            <h4 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">{emp['full_name']}</h4>
-                            <p style="margin: 3px 0; font-size: 13px; color: #0f766e; font-weight: 700;">{emp['section']}</p>
+                            <h4 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">{escape(emp['full_name'])}</h4>
+                            <p style="margin: 3px 0; font-size: 13px; color: #0f766e; font-weight: 700;">{escape(emp['section'])}</p>
                             <span style="font-size: 12px; color: #64748b;">{sub_info}</span>
                         </div>
                     </div>
@@ -785,11 +956,13 @@ def render_admin_portal():
         st.subheader("📑 مراجعة التقارير وتحديد نسبة الالتزام بمعايير مكافحة العدوى")
         st.caption("مؤشر (📈 نسبة الالتزام بمعايير مكافحة العدوى المرصودة %) يظهر هنا لرئيس القسم فقط لتقييم واعتماد أداء كل وحدة.")
         
-        f1, f2 = st.columns(2)
-        with f1:
-            sel_week = st.number_input("الأسبوع", min_value=1, max_value=53, value=current_week, key="adm_det_w")
-        with f2:
-            sel_year = st.number_input("السنة", min_value=2024, max_value=2030, value=current_year, key="adm_det_y")
+        selected_date = st.date_input(
+            "📅 اختر تاريخاً ضمن الفترة المراد عرض تقاريرها",
+            value=today, min_value=datetime.date(2024, 1, 1), max_value=today,
+            format="DD/MM/YYYY", key="adm_details_date"
+        )
+        sel_year, sel_week, _ = selected_date.isocalendar()
+        st.caption(f"الفترة المعروضة: {reporting_period_text(sel_week, sel_year)}")
             
         conn = get_db_connection()
         c = conn.cursor()
@@ -804,7 +977,7 @@ def render_admin_portal():
         conn.close()
         
         if not filtered_reports:
-            st.info(f"لا توجد تقارير مرفوعة للأسبوع ({sel_week} / {sel_year}) حتى الآن.")
+            st.info(f"لا توجد تقارير مرفوعة للفترة {reporting_period_text(sel_week, sel_year)} حتى الآن.")
         else:
             for r in filtered_reports:
                 with st.expander(f"📄 {r['full_name']} — {r['section']} (تاريخ الرفع: {r['date_submitted']})", expanded=True):
@@ -838,11 +1011,13 @@ def render_admin_portal():
         st.subheader("📋 التقرير التنفيذي الموحد لقسم مكافحة العدوى")
         st.write("يقوم النظام بدمج وتحليل كافة تقارير الأعضاء الستة وتوليد خلاصة تنفيذية شاملة جاهزة للطباعة أو العرض الإداري.")
         
-        ai_c1, ai_c2 = st.columns(2)
-        with ai_c1:
-            ai_week = st.number_input("رقم الأسبوع المراد تلخيصه", min_value=1, max_value=53, value=current_week, key="adm_ai_w")
-        with ai_c2:
-            ai_year = st.number_input("السنة", min_value=2024, max_value=2030, value=current_year, key="adm_ai_y")
+        summary_date = st.date_input(
+            "📅 اختر تاريخاً ضمن الفترة المراد تلخيصها",
+            value=today, min_value=datetime.date(2024, 1, 1), max_value=today,
+            format="DD/MM/YYYY", key="adm_summary_date"
+        )
+        ai_year, ai_week, _ = summary_date.isocalendar()
+        st.caption(f"فترة التقرير التنفيذي: {reporting_period_text(ai_week, ai_year)}")
             
         conn = get_db_connection()
         c = conn.cursor()
@@ -950,7 +1125,18 @@ if not st.session_state.authenticated:
 # ---------------------------------------------------------
 # 2. الشاشة الداخلية بعد تسجيل الدخول
 # ---------------------------------------------------------
+# جلب أحدث صورة وبيانات للحساب عند كل تحديث للواجهة.
+conn = get_db_connection()
+try:
+    user_row = conn.execute("SELECT * FROM users WHERE id = ?", (st.session_state.user['id'],)).fetchone()
+finally:
+    conn.close()
+if user_row is None:
+    logout()
+st.session_state.user = dict(user_row)
 current_user = st.session_state.user
+today = portal_now().date()
+current_year, current_week, _ = today.isocalendar()
 is_head_or_admin = current_user['role'] in ['admin', 'head_employee']
 
 # الشريط الجانبي
@@ -961,15 +1147,17 @@ with st.sidebar:
     st.markdown(f"""
     <div class="sidebar-profile">
         <div class="sidebar-avatar">
-            <img src="{photo_src}" alt="profile"/>
+            <img src="{escape(photo_src, quote=True)}" alt="الصورة الشخصية"/>
         </div>
-        <h3 style="margin: 0; font-weight: 900; font-size: 20px;">{current_user['full_name']}</h3>
-        <p style="margin: 4px 0 12px 0; font-size: 13px; opacity: 0.8;">{current_user['section']}</p>
+        <h3 style="margin: 0; font-weight: 900; font-size: 20px;">{escape(current_user['full_name'])}</h3>
+        <p style="margin: 4px 0 12px 0; font-size: 13px; opacity: 0.8;">{escape(current_user['section'])}</p>
         <span style="background: rgba(16, 185, 129, 0.22); border: 1px solid #10b981; padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 800;">
             {role_title}
         </span>
     </div>
     """, unsafe_allow_html=True)
+
+    render_profile_photo_settings(current_user)
     
     # إذا كان المستخدم هو د. الوليد الرقيبة (رئيس القسم)، يظهر له مفتاح تبديل سريع + خيار جمع الواجهتين معاً
     selected_view_mode = "both"
@@ -992,8 +1180,12 @@ with st.sidebar:
             selected_view_mode = "both"
         st.divider()
         
-    st.markdown(f"**📅 التاريخ:** `{datetime.date.today().strftime('%Y-%m-%d')}`")
-    st.markdown(f"**🗓️ الأسبوع الحالي:** `{datetime.date.today().isocalendar()[1]} / {datetime.date.today().year}`")
+    st.markdown(f"""
+    <div class="portal-date">
+        <div class="date-label">📅 التاريخ — بتوقيت السعودية</div>
+        <div class="date-value">{today:%d/%m/%Y}</div>
+    </div>
+    """, unsafe_allow_html=True)
     st.divider()
     if st.button("🚪 تسجيل الخروج الآمن", use_container_width=True):
         logout()
@@ -1006,12 +1198,12 @@ st.markdown(f"""
             <div class="live-indicator">
                 <span class="live-dot"></span> نظام الرصد والتقارير الأسبوعية — قسم مكافحة العدوى
             </div>
-            <h1>مرحباً بك، {current_user['full_name']}</h1>
-            <p>{current_user['section']} — بوابة رقمية متكاملة لمتابعة الأداء الوقائي، توثيق الجولات الميدانية، وتعزيز سلامة المرضى والعاملين.</p>
+            <h1>مرحباً بك، {escape(current_user['full_name'])}</h1>
+            <p>{escape(current_user['section'])} — بوابة رقمية متكاملة لمتابعة الأداء الوقائي، توثيق الجولات الميدانية، وتعزيز سلامة المرضى والعاملين.</p>
         </div>
-        <div style="background: rgba(9, 19, 38, 0.55); padding: 16px 26px; border-radius: 18px; backdrop-filter: blur(12px); text-align: center; border: 1px solid rgba(255,255,255,0.2);">
-            <div style="font-size: 13px; color: #99f6e4; font-weight: 700;">الفترة التقريرية الحالية</div>
-            <div style="font-size: 27px; font-weight: 900; color: #ffffff;">الأسبوع {datetime.date.today().isocalendar()[1]} — {datetime.date.today().year}</div>
+        <div class="portal-date" style="text-align: center; margin-bottom: 0;">
+            <div class="date-label">📅 الفترة التقريرية الحالية</div>
+            <div class="date-value">{reporting_period_text(current_week, current_year)}</div>
         </div>
     </div>
 </div>
