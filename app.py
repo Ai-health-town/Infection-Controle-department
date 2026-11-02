@@ -9,6 +9,7 @@ import os
 import base64
 import io
 import warnings
+import uuid
 from html import escape
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -150,20 +151,48 @@ st.markdown("""
         border: 2px solid #091326;
     }
 
-    /* الهيدر البانورامي المصور */
+    /* هوية بصرية أصلية لمكافحة العدوى */
     .exec-banner {
         position: relative;
         border-radius: 24px;
         overflow: hidden;
         margin-bottom: 28px;
-        background: linear-gradient(120deg, rgba(9, 19, 38, 0.92) 0%, rgba(15, 118, 110, 0.88) 55%, rgba(2, 132, 199, 0.82) 100%),
-                    url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        background: radial-gradient(ellipse at 8% 50%, rgba(45, 212, 191, 0.20), transparent 52%),
+                    linear-gradient(115deg, #071e2b 0%, #084c50 55%, #0f766e 100%);
         padding: 36px 40px;
         color: white;
         box-shadow: 0 18px 40px rgba(9, 19, 38, 0.16);
         border: 1px solid rgba(255, 255, 255, 0.18);
         animation: fadeInUp 0.6s ease-out;
     }
+    .exec-banner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.12;
+        background-image: radial-gradient(#99f6e4 1px, transparent 1px);
+        background-size: 24px 24px;
+        pointer-events: none;
+    }
+    .banner-content { position: relative; z-index: 1; }
+    .ic-banner-art {
+        position: absolute;
+        left: 1%;
+        top: 50%;
+        transform: translateY(-50%);
+        width: min(42%, 360px);
+        opacity: 0.24;
+        pointer-events: none;
+    }
+    .ic-banner-art svg { display: block; width: 100%; height: auto; }
+    .brand-line {
+        color: #ccfbf1;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 14px;
+        letter-spacing: 0.2px;
+    }
+    .brand-line span { color: #5eead4; padding: 0 10px; }
     .exec-banner h1 {
         color: #ffffff !important;
         font-weight: 900 !important;
@@ -211,8 +240,8 @@ st.markdown("""
         animation: fadeInUp 0.7s ease-out;
     }
     .login-visual-header {
-        background: linear-gradient(135deg, rgba(9, 19, 38, 0.88) 0%, rgba(13, 148, 136, 0.85) 100%),
-                    url('https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+        background: radial-gradient(circle at 15% 30%, rgba(45, 212, 191, 0.22), transparent 55%),
+                    linear-gradient(135deg, #071e2b 0%, #0f766e 100%);
         padding: 42px 30px;
         text-align: center;
         color: white;
@@ -403,6 +432,8 @@ st.markdown("""
         .exec-banner { padding: 24px 20px; }
         .exec-banner h1 { font-size: 25px !important; }
         .member-card > div { flex-wrap: wrap; gap: 12px; }
+        .ic-banner-art { width: 65%; opacity: 0.12; }
+        .brand-line { font-size: 12px; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -411,6 +442,27 @@ st.markdown("""
 # قاعدة البيانات وتجهيز الحسابات والصلاحيات المزدوجة للدكتور الوليد
 # ---------------------------------------------------------
 DB_FILE = "infection_control_enterprise.db"
+
+DEFAULT_REPORT_QUESTIONS = [
+    {"id": "accomplishments", "label": "أبرز الإنجازات والأعمال المنفذة خلال الأسبوع",
+     "placeholder": "سجّل الأعمال المنجزة والجولات الميدانية والمتابعات والبرامج التدريبية...", "required": True, "active": True},
+    {"id": "challenges", "label": "التحديات، المعوقات، أو الملاحظات الحرجة المرصودة",
+     "placeholder": "اذكر الملاحظات أو المعوقات التي تتطلب المتابعة...", "required": False, "active": True},
+    {"id": "next_week_plan", "label": "خطة العمل والأولويات للأسبوع القادم",
+     "placeholder": "ما أبرز المهام والأقسام المستهدفة في الأسبوع القادم؟", "required": False, "active": True},
+]
+
+# رسم أصلي داخل الملف؛ لا يعتمد على صور مستشفيات أو شعارات خارجية.
+INFECTION_CONTROL_ART = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+<circle cx="200" cy="200" r="176" stroke="#5eead4" stroke-width="1" stroke-dasharray="5 10"/>
+<circle cx="200" cy="200" r="145" stroke="#99f6e4" stroke-width="1"/>
+<path d="M200 87 285 123V195C285 250 246 289 200 315 154 289 115 250 115 195V123Z" fill="#14b8a6" fill-opacity=".2" stroke="#99f6e4" stroke-width="6"/>
+<path d="m157 195 29 29 59-63" stroke="#ecfdf5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<g stroke="#5eead4" stroke-width="3"><path d="M53 200h57M290 200h57M200 25v52M200 323v52M76 76l40 40M284 284l40 40M76 324l40-40M284 116l40-40"/>
+<circle cx="53" cy="200" r="14" fill="#084c50"/><circle cx="347" cy="200" r="14" fill="#084c50"/>
+<circle cx="200" cy="31" r="12" fill="#084c50"/><circle cx="200" cy="369" r="12" fill="#084c50"/>
+<circle cx="76" cy="76" r="9" fill="#99f6e4"/><circle cx="324" cy="324" r="9" fill="#99f6e4"/>
+<circle cx="76" cy="324" r="9" fill="#99f6e4"/><circle cx="324" cy="76" r="9" fill="#99f6e4"/></g></svg>'''
 
 def hash_password(password: str) -> str:
     salt = "ic_salt_2026_mac"
@@ -463,6 +515,7 @@ TEAM_MEMBERS_SEED = [
 
 def init_db():
     conn = get_db_connection()
+    conn.execute("BEGIN IMMEDIATE")
     c = conn.cursor()
     
     c.execute("""
@@ -489,11 +542,36 @@ def init_db():
         challenges TEXT NOT NULL,
         next_week_plan TEXT NOT NULL,
         audits_count INTEGER DEFAULT 0,
-        compliance_rate REAL DEFAULT 92.0,
+        compliance_rate REAL DEFAULT NULL,
         critical_alerts TEXT DEFAULT '',
         FOREIGN KEY (user_id) REFERENCES users (id)
     )
     """)
+
+    # ترقية إضافية فقط؛ لا تُحذف الحسابات أو التقارير أو نسب الإصدار السابق.
+    existing_columns = {row['name'] for row in c.execute("PRAGMA table_info(weekly_reports)")}
+    for column, definition in {
+        "form_snapshot": "TEXT NOT NULL DEFAULT ''",
+        "answers_json": "TEXT NOT NULL DEFAULT '{}'",
+        "compliance_checks_total": "INTEGER DEFAULT NULL",
+        "compliance_checks_passed": "INTEGER DEFAULT NULL",
+        "compliance_evidence": "TEXT NOT NULL DEFAULT ''",
+        "compliance_reviewed_at": "TEXT DEFAULT NULL",
+        "compliance_reviewed_by": "INTEGER DEFAULT NULL",
+    }.items():
+        if column not in existing_columns:
+            c.execute(f"ALTER TABLE weekly_reports ADD COLUMN {column} {definition}")
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS portal_settings (
+            setting_key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            revision INTEGER NOT NULL DEFAULT 1,
+            updated_at TEXT,
+            updated_by INTEGER
+        )
+    """)
+    c.execute("INSERT OR IGNORE INTO portal_settings (setting_key, value) VALUES (?, ?)",
+              ("report_questions", json.dumps(DEFAULT_REPORT_QUESTIONS, ensure_ascii=False)))
     
     c.execute("SELECT COUNT(*) FROM users")
     if c.fetchone()[0] == 0:
@@ -625,57 +703,259 @@ def render_profile_photo_settings(current_user):
                     st.rerun()
 
 # ---------------------------------------------------------
-# محرك التلخيص التنفيذي الذكي (للإدارة ورئيس القسم)
+# إعدادات الأسئلة، حفظ الإجابات، واحتساب المؤشرات من بيانات الرصد
+# ---------------------------------------------------------
+def require_admin(conn):
+    if not st.session_state.get('authenticated') or not st.session_state.get('user'):
+        raise PermissionError("يرجى تسجيل الدخول أولاً.")
+    user_id = st.session_state.user['id']
+    row = conn.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
+    if row is None or row['role'] not in {'admin', 'head_employee'}:
+        raise PermissionError("تعديل هذه الإعدادات متاح لرئيس القسم فقط.")
+    return user_id
+
+def load_question_settings():
+    conn = get_db_connection()
+    try:
+        row = conn.execute("SELECT value, revision FROM portal_settings WHERE setting_key = 'report_questions'").fetchone()
+        return json.loads(row['value']), row['revision']
+    finally:
+        conn.close()
+
+def save_question_settings(questions, expected_revision):
+    if not 1 <= len(questions) <= 25:
+        raise ValueError("يمكن أن يحتوي النموذج على سؤال واحد إلى 25 سؤالاً.")
+    if not any(q['active'] for q in questions):
+        raise ValueError("يجب إبقاء سؤال واحد على الأقل ظاهراً للأعضاء.")
+    ids = set()
+    for q in questions:
+        if not q['label'].strip() or len(q['label']) > 200:
+            raise ValueError("أدخل عنواناً لكل سؤال لا يتجاوز 200 حرف.")
+        if q['id'] in ids or not q['id'].replace('_', '').isalnum():
+            raise ValueError("معرّفات الأسئلة غير صالحة أو مكررة.")
+        ids.add(q['id'])
+    conn = get_db_connection()
+    try:
+        with conn:
+            admin_id = require_admin(conn)
+            result = conn.execute("""
+                UPDATE portal_settings SET value = ?, revision = revision + 1, updated_at = ?, updated_by = ?
+                WHERE setting_key = 'report_questions' AND revision = ?
+            """, (json.dumps(questions, ensure_ascii=False), portal_now().isoformat(), admin_id, expected_revision))
+            if result.rowcount != 1:
+                raise ValueError("تغيّرت إعدادات النموذج من جلسة أخرى. حدّث الصفحة ثم أعد التعديل.")
+    finally:
+        conn.close()
+
+def report_answers_and_questions(report):
+    report = dict(report)
+    answers = {q['id']: report.get(q['id']) or '' for q in DEFAULT_REPORT_QUESTIONS}
+    try:
+        stored = json.loads(report.get('answers_json') or '{}')
+        if isinstance(stored, dict):
+            answers.update({k: v for k, v in stored.items() if isinstance(v, str)})
+    except (ValueError, TypeError):
+        pass
+    try:
+        questions = json.loads(report.get('form_snapshot') or 'null')
+        if not isinstance(questions, list) or not questions:
+            questions = DEFAULT_REPORT_QUESTIONS
+    except (ValueError, TypeError):
+        questions = DEFAULT_REPORT_QUESTIONS
+    return answers, questions
+
+def render_saved_answers(report):
+    answers, questions = report_answers_and_questions(report)
+    for index, q in enumerate(questions, 1):
+        st.markdown(f"**{index}. {q['label']}**")
+        st.write(answers.get(q['id'], '').strip() or 'لم تُسجّل إجابة لهذه الخانة.')
+
+def save_weekly_report(questions, new_answers, audits_count):
+    if not st.session_state.get('authenticated') or not st.session_state.get('user'):
+        raise PermissionError("يرجى تسجيل الدخول أولاً.")
+    active_questions = [q for q in questions if q['active']]
+    for q in active_questions:
+        if q['required'] and not new_answers.get(q['id'], '').strip():
+            raise ValueError(f"يرجى الإجابة عن السؤال المطلوب: {q['label']}")
+    if not isinstance(audits_count, int) or not 0 <= audits_count <= 250:
+        raise ValueError("عدد الجولات غير صالح.")
+    year, week, _ = portal_now().date().isocalendar()
+    user_id = st.session_state.user['id']
+    conn = get_db_connection()
+    try:
+        # منع إنشاء تقريرين لنفس العضو والفترة عند الإرسال من جلستين متزامنتين.
+        conn.execute("BEGIN IMMEDIATE")
+        with conn:
+            old = conn.execute("""SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ?
+                                  ORDER BY date_submitted DESC, id DESC LIMIT 1""", (user_id, week, year)).fetchone()
+            answers, old_questions = report_answers_and_questions(old) if old else ({}, [])
+            answers.update({q['id']: new_answers.get(q['id'], '').strip() for q in active_questions})
+            active_ids = {q['id'] for q in active_questions}
+            snapshot = active_questions + [q for q in old_questions if q['id'] not in active_ids and answers.get(q['id'], '').strip()]
+            values = (answers.get('accomplishments', ''), answers.get('challenges', ''), answers.get('next_week_plan', ''),
+                      audits_count, portal_now().strftime('%Y-%m-%d %H:%M'),
+                      json.dumps(snapshot, ensure_ascii=False), json.dumps(answers, ensure_ascii=False))
+            if old:
+                conn.execute("""UPDATE weekly_reports SET accomplishments = ?, challenges = ?, next_week_plan = ?,
+                                audits_count = ?, date_submitted = ?, form_snapshot = ?, answers_json = ? WHERE id = ?""",
+                             (*values, old['id']))
+            else:
+                conn.execute("""INSERT INTO weekly_reports (accomplishments, challenges, next_week_plan, audits_count,
+                                date_submitted, form_snapshot, answers_json, user_id, week_num, year, compliance_rate)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)""", (*values, user_id, week, year))
+    finally:
+        conn.close()
+
+def load_team_members():
+    conn = get_db_connection()
+    try:
+        return [dict(row) for row in conn.execute("SELECT * FROM users WHERE LOWER(username) != 'admin' ORDER BY id")]
+    finally:
+        conn.close()
+
+def load_period_reports(week, year):
+    conn = get_db_connection()
+    try:
+        return [dict(row) for row in conn.execute("""
+            SELECT r.*, u.full_name, u.section, u.username, u.badge_color, u.photo_url
+            FROM weekly_reports r JOIN users u ON r.user_id = u.id
+            WHERE r.week_num = ? AND r.year = ? AND LOWER(u.username) != 'admin'
+              AND r.id = (SELECT newer.id FROM weekly_reports newer
+                          WHERE newer.user_id = r.user_id AND newer.week_num = r.week_num AND newer.year = r.year
+                          ORDER BY newer.date_submitted DESC, newer.id DESC LIMIT 1)
+            ORDER BY u.id
+        """, (week, year))]
+    finally:
+        conn.close()
+
+def has_verified_measurement(report):
+    total = report.get('compliance_checks_total')
+    passed = report.get('compliance_checks_passed')
+    return (isinstance(total, int) and isinstance(passed, int) and total > 0 and 0 <= passed <= total
+            and bool(report.get('compliance_reviewed_at')) and report.get('compliance_reviewed_by') is not None
+            and bool((report.get('compliance_evidence') or '').strip()))
+
+def compliance_metrics(reports):
+    verified = [r for r in reports if has_verified_measurement(r)]
+    total = sum(r['compliance_checks_total'] for r in verified)
+    passed = sum(r['compliance_checks_passed'] for r in verified)
+    return {'total': total, 'passed': passed, 'reports_measured': len(verified),
+            'rate': (100 * passed / total) if total else None}
+
+def save_compliance_measurement(report_id, total, passed, evidence):
+    if not isinstance(total, int) or not isinstance(passed, int) or total <= 0 or not 0 <= passed <= total:
+        raise ValueError("أدخل إجمالي فرص رصد أكبر من صفر، وعدداً مطابقاً لا يتجاوز الإجمالي.")
+    if not evidence.strip():
+        raise ValueError("أدخل مرجع بيانات الرصد حتى يكون القياس موثقاً.")
+    conn = get_db_connection()
+    try:
+        with conn:
+            admin_id = require_admin(conn)
+            result = conn.execute("""UPDATE weekly_reports SET compliance_checks_total = ?, compliance_checks_passed = ?,
+                compliance_evidence = ?, compliance_reviewed_at = ?, compliance_reviewed_by = ?, compliance_rate = ? WHERE id = ?""",
+                (total, passed, evidence.strip(), portal_now().isoformat(timespec='minutes'), admin_id, 100 * passed / total, report_id))
+            if result.rowcount != 1:
+                raise ValueError("لم يتم العثور على التقرير.")
+    finally:
+        conn.close()
+
+def clear_compliance_measurement(report_id):
+    conn = get_db_connection()
+    try:
+        with conn:
+            require_admin(conn)
+            conn.execute("""UPDATE weekly_reports SET compliance_checks_total = NULL, compliance_checks_passed = NULL,
+                compliance_evidence = '', compliance_reviewed_at = NULL, compliance_reviewed_by = NULL,
+                compliance_rate = NULL WHERE id = ?""", (report_id,))
+    finally:
+        conn.close()
+
+def render_question_settings():
+    st.subheader("🛠️ إعدادات أسئلة التقرير الأسبوعي")
+    st.caption("عدّل عنوان السؤال والنص المساعد، وحدّد هل الإجابة مطلوبة وهل يظهر السؤال للأعضاء. تحتفظ التقارير المحفوظة بنص أسئلتها وإجاباتها.")
+    questions, revision = load_question_settings()
+    with st.form('weekly_questions_settings'):
+        edited = []
+        for index, q in enumerate(questions, 1):
+            st.markdown(f"**السؤال {index}**")
+            label = st.text_input('عنوان السؤال', value=q['label'], max_chars=200, key=f"question_label_{q['id']}_{revision}")
+            placeholder = st.text_input('النص المساعد داخل الخانة', value=q.get('placeholder', ''), max_chars=600, key=f"question_help_{q['id']}_{revision}")
+            c1, c2 = st.columns(2)
+            with c1:
+                active = st.checkbox('يظهر للأعضاء', value=q['active'], key=f"question_active_{q['id']}_{revision}")
+            with c2:
+                required = st.checkbox('الإجابة مطلوبة', value=q['required'], key=f"question_required_{q['id']}_{revision}")
+            edited.append({'id': q['id'], 'label': label.strip(), 'placeholder': placeholder.strip(), 'active': active, 'required': required})
+            st.divider()
+        if st.form_submit_button('💾 حفظ إعدادات الأسئلة', use_container_width=True):
+            try:
+                save_question_settings(edited, revision)
+            except (ValueError, PermissionError) as exc:
+                st.error(str(exc))
+            else:
+                st.session_state.portal_notice = 'تم تحديث أسئلة التقرير للأعضاء بنجاح ✅'
+                st.rerun()
+    if len(questions) < 25:
+        with st.expander('➕ إضافة سؤال جديد'):
+            with st.form(f'add_report_question_{revision}', clear_on_submit=True):
+                label = st.text_input('عنوان السؤال الجديد', max_chars=200)
+                placeholder = st.text_input('النص المساعد للسؤال الجديد', max_chars=600)
+                required = st.checkbox('إجابة السؤال الجديد مطلوبة')
+                if st.form_submit_button('➕ إضافة السؤال'):
+                    new_question = {'id': 'custom_' + uuid.uuid4().hex, 'label': label.strip(), 'placeholder': placeholder.strip(), 'required': required, 'active': True}
+                    try:
+                        save_question_settings(questions + [new_question], revision)
+                    except (ValueError, PermissionError) as exc:
+                        st.error(str(exc))
+                    else:
+                        st.session_state.portal_notice = 'تمت إضافة السؤال الجديد ✅'
+                        st.rerun()
+
+# ---------------------------------------------------------
+# التقرير التنفيذي: نفس البيانات والحساب المستخدمين في لوحة القيادة
 # ---------------------------------------------------------
 def build_executive_summary(reports_list, week_num, year):
     total_reports = len(reports_list)
     if total_reports == 0:
         return "لا توجد تقارير مرفوعة لهذا الأسبوع حتى الآن."
-    
+    total_members = len(load_team_members())
     total_audits = sum(r['audits_count'] for r in reports_list)
-    avg_compliance = sum(r['compliance_rate'] for r in reports_list) / total_reports if total_reports > 0 else 0
-    
+    measurement = compliance_metrics(reports_list)
+    rate_text = f"{measurement['rate']:.1f}%" if measurement['rate'] is not None else 'لا توجد بيانات رصد موثقة'
+    completion_text = f"{100 * total_reports / total_members:.0f}%" if total_members else 'لا يوجد أعضاء'
     sections_summary = []
-    all_challenges = []
-    all_plans = []
-    
     for r in reports_list:
-        sections_summary.append(
-            f"- **{r['full_name']}** (*{r['section']}*) — الجولات المنفذة: `{r['audits_count']}` | نسبة الالتزام المرصودة: `{r['compliance_rate']}%`\n"
-            f"  * **أبرز الأعمال المنجزة:** {r['accomplishments']}"
-        )
-        if r['challenges'].strip():
-            all_challenges.append(f"🚨 **{r['full_name']} ({r['section']})**: {r['challenges']}")
-        if r['next_week_plan'].strip():
-            all_plans.append(f"📌 **{r['full_name']} ({r['section']})**: {r['next_week_plan']}")
-            
-    challenges_text = "\n".join(all_challenges) if all_challenges else "✅ الوضع الوبائي والوقائي مستقر، ولا توجد ملاحظات حرجة مسجلة هذا الأسبوع."
-    plans_text = "\n".join(all_plans) if all_plans else "مواصلة خطط الترصد الميداني والتدقيق الدوري المعتادة."
-    
+        answers, questions = report_answers_and_questions(r)
+        details = '\n'.join(f"- **{q['label']}:** {answers.get(q['id'], '').strip() or 'لم تُسجّل إجابة.'}" for q in questions)
+        personal_rate = (f"{100 * r['compliance_checks_passed'] / r['compliance_checks_total']:.1f}% "
+                         f"({r['compliance_checks_passed']} / {r['compliance_checks_total']})"
+                         if has_verified_measurement(r) else 'لا توجد بيانات رصد موثقة')
+        sections_summary.append(f"### {r['full_name']} — {r['section']}\n"
+                                f"الجولات: {r['audits_count']} | الالتزام المرصود: {personal_rate}\n\n{details}")
     return f"""### 🏥 التقرير التنفيذي الموحد لقسم مكافحة العدوى — الفترة {reporting_period_text(week_num, year)}
-**إعداد واعتماد:** د. الوليد الرقيبة — رئيس قسم مكافحة العدوى
+**تجمع القصيم الصحي | شركة الصحة القابضة**
+**ملخص مجمّع من التقارير المحفوظة — للمراجعة والاعتماد من رئيس القسم**
 
 ---
 
 #### 📊 أولاً: المؤشرات القياسية العامة للقسم (Department KPIs)
-- **اكتمال التقارير الأسبوعية:** `{total_reports}` من أصل `6` أعضاء ({(total_reports/6)*100:.0f}%)
+- **اكتمال التقارير الأسبوعية:** `{total_reports}` من أصل `{total_members}` أعضاء ({completion_text})
 - **إجمالي الجولات الميدانية والتدقيقات:** `{total_audits}` جولة تفقدية
-- **المؤشر العام للالتزام بمعايير مكافحة العدوى (المعتمد من الإدارة):** `{avg_compliance:.1f}%`
+- **نسبة الالتزام في فرص الرصد الموثقة:** {rate_text}
+- **فرص الرصد المطابقة / الإجمالي:** `{measurement['passed']} / {measurement['total']}`
+- **تغطية القياس:** `{measurement['reports_measured']}` من أصل `{total_reports}` تقارير مستلمة
 
 ---
 
-#### 🏆 ثانياً: ملخص الإنجازات الميدانية حسب الوحدات
+#### 📋 ثانياً: إجابات الأعضاء حسب أسئلة كل تقرير
 {chr(10).join(sections_summary)}
 
 ---
 
-#### ⚠️ ثالثاً: التحديات والملاحظات الحرجة المرصودة
-{challenges_text}
-
----
-
-#### 🎯 رابعاً: الخطة التشغيلية والتوصيات للأسبوع القادم
-{plans_text}
+#### 📐 منهجية المؤشر
+نسبة الالتزام = مجموع فرص الرصد المطابقة ÷ مجموع فرص الرصد القابلة للتقييم × 100.
+تُستبعد النسب الافتراضية القديمة والتقارير التي لا تحتوي على أعداد رصد موثقة.
+المؤشر يصف العينات المدخلة فقط؛ لا يُعد قياساً شاملاً لجميع الممارسات أو نسبة للعدوى المكتسبة.
 """
 
 # ---------------------------------------------------------
@@ -710,6 +990,7 @@ def logout():
 def render_employee_portal(target_user):
     today = portal_now().date()
     current_year, current_week, _ = today.isocalendar()
+    questions, question_revision = load_question_settings()
     
     # معرض مصور لأقسام مكافحة العدوى يضفي فخامة بصرية للمنصة
     g1, g2, g3 = st.columns(3)
@@ -746,7 +1027,7 @@ def render_employee_portal(target_user):
     with tab_submit:
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute("SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ?",
+        c.execute("SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ? ORDER BY date_submitted DESC, id DESC LIMIT 1",
                   (target_user['id'], current_week, current_year))
         existing_report = c.fetchone()
         conn.close()
@@ -754,10 +1035,10 @@ def render_employee_portal(target_user):
         if existing_report:
             st.success(f"✅ تم استلام تقريرك للفترة {reporting_period_text(current_week, current_year)} بتاريخ {existing_report['date_submitted']}. يمكنك تعديل وتحديث التقرير:")
             
-        with st.form(f"emp_report_form_{target_user['id']}"):
+        saved_answers, _ = report_answers_and_questions(existing_report) if existing_report else ({}, [])
+        with st.form(f"emp_report_form_{target_user['id']}_{current_year}_{current_week}_{question_revision}"):
             st.markdown("#### 📅 الفترة الزمنية والنشاط الميداني")
             # تُحسب الفترة تلقائياً؛ لا حاجة لإدخال رقم الأسبوع أو السنة يدوياً.
-            week_num, year_val = current_week, current_year
             c_w1, c_w2 = st.columns(2)
             with c_w1:
                 st.markdown(f"""
@@ -775,49 +1056,24 @@ def render_employee_portal(target_user):
                 )
                 
             st.markdown("#### 📋 تفاصيل التقرير الأسبوعي")
-            accomplishments = st.text_area(
-                "1️⃣ أبرز الإنجازات والأعمال المنفذة خلال الأسبوع",
-                value=existing_report['accomplishments'] if existing_report else "",
-                placeholder="سجّل هنا جميع الأعمال المنجزة، الجولات الميدانية، الحالات التي تمت متابعتها، أو البرامج التدريبية...",
-                height=135
-            )
-            
-            challenges = st.text_area(
-                "2️⃣ التحديات، المعوقات، أو الملاحظات الحرجة المرصودة",
-                value=existing_report['challenges'] if existing_report else "",
-                placeholder="اذكر أي ملاحظات حرجة بالأقسام، نقص في المستلزمات الوقائية، أو تحديات تتطلب توجيه رئيس القسم...",
-                height=110
-            )
-            
-            next_week_plan = st.text_area(
-                "3️⃣ خطة العمل والأولويات للأسبوع القادم",
-                value=existing_report['next_week_plan'] if existing_report else "",
-                placeholder="ما هي أبرز المهام والأقسام المستهدفة في الأسبوع القادم؟",
-                height=110
-            )
+            new_answers = {}
+            for index, q in enumerate((q for q in questions if q['active']), 1):
+                required_hint = ' *' if q['required'] else ''
+                new_answers[q['id']] = st.text_area(
+                    f"{index}. {q['label']}{required_hint}",
+                    value=saved_answers.get(q['id'], ''), placeholder=q.get('placeholder', ''),
+                    height=135 if index == 1 else 110,
+                    key=f"answer_{target_user['id']}_{current_year}_{current_week}_{q['id']}_{question_revision}"
+                )
+            st.caption('* إجابة مطلوبة')
             
             save_report_btn = st.form_submit_button("🚀 اعتماد ورفع التقرير الأسبوعي", use_container_width=True)
             if save_report_btn:
-                if not accomplishments.strip():
-                    st.error("⚠️ يرجى كتابة إنجازات الأسبوع قبل اعتماد التقرير.")
+                try:
+                    save_weekly_report(questions, new_answers, audits_count)
+                except (ValueError, PermissionError) as exc:
+                    st.error(str(exc))
                 else:
-                    now_str = portal_now().strftime("%Y-%m-%d %H:%M")
-                    conn = get_db_connection()
-                    c = conn.cursor()
-                    if existing_report:
-                        c.execute("""
-                        UPDATE weekly_reports 
-                        SET accomplishments = ?, challenges = ?, next_week_plan = ?,
-                            audits_count = ?, date_submitted = ?
-                        WHERE id = ?
-                        """, (accomplishments, challenges, next_week_plan, audits_count, now_str, existing_report['id']))
-                    else:
-                        c.execute("""
-                        INSERT INTO weekly_reports (user_id, week_num, year, date_submitted, accomplishments, challenges, next_week_plan, audits_count, compliance_rate)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (target_user['id'], week_num, year_val, now_str, accomplishments, challenges, next_week_plan, audits_count, 92.0))
-                    conn.commit()
-                    conn.close()
                     st.balloons()
                     st.success("🎉 تم رفع واعتماد تقريرك الأسبوعي بنجاح!")
                     st.rerun()
@@ -836,9 +1092,7 @@ def render_employee_portal(target_user):
             for rep in my_reports:
                 with st.expander(f"📅 تقرير الفترة {reporting_period_text(rep['week_num'], rep['year'])} — تاريخ الرفع: {rep['date_submitted']}"):
                     st.markdown(f"**🔍 عدد الجولات الميدانية المنفذة:** `{rep['audits_count']}` جولات")
-                    st.markdown(f"**🏆 الإنجازات:**\n{rep['accomplishments']}")
-                    st.markdown(f"**⚠️ التحديات والملاحظات:**\n{rep['challenges'] or 'لا توجد ملاحظات'}")
-                    st.markdown(f"**🎯 خطة الأسبوع القادم:**\n{rep['next_week_plan'] or 'لا توجد خطة مسجلة'}")
+                    render_saved_answers(rep)
 
 # ---------------------------------------------------------
 # دالة عرض لوحة تحكم رئيس القسم / الأدمن (مع تقييم نسبة الالتزام خاص بالأدمن فقط)
@@ -847,34 +1101,27 @@ def render_admin_portal():
     today = portal_now().date()
     current_year, current_week, _ = today.isocalendar()
     
-    tab_dash, tab_details, tab_ai, tab_team = st.tabs([
+    if st.session_state.get('portal_notice'):
+        st.success(st.session_state.pop('portal_notice'))
+    tab_dash, tab_details, tab_ai, tab_team, tab_questions = st.tabs([
         "📊 لوحة القيادة والمؤشرات",
         "📑 تقارير الأعضاء وتقييم الالتزام",
         "📋 التقرير التنفيذي الموحد",
-        "⚙️ إدارة أعضاء القسم"
+        "⚙️ إدارة أعضاء القسم",
+        "🛠️ إعدادات أسئلة التقرير"
     ])
     
     with tab_dash:
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username != 'admin' ORDER BY id ASC")
-        employees = [dict(row) for row in c.fetchall()]
-        
-        c.execute("""
-        SELECT r.*, u.full_name, u.section, u.username, u.badge_color, u.photo_url
-        FROM weekly_reports r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.week_num = ? AND r.year = ? AND u.username != 'admin'
-        """, (current_week, current_year))
-        submitted_reports = [dict(row) for row in c.fetchall()]
-        conn.close()
+        employees = load_team_members()
+        submitted_reports = load_period_reports(current_week, current_year)
         
         submitted_user_ids = {r['user_id'] for r in submitted_reports}
         total_emp = len(employees)
         done_count = len(submitted_reports)
         pending_count = total_emp - done_count
         total_aud = sum(r['audits_count'] for r in submitted_reports)
-        avg_comp = sum(r['compliance_rate'] for r in submitted_reports) / done_count if done_count > 0 else 92.0
+        measurement = compliance_metrics(submitted_reports)
+        compliance_text = f"{measurement['rate']:.1f}%" if measurement['rate'] is not None else 'لا توجد بيانات'
         
         # البطاقات القياسية الأربع
         k1, k2, k3, k4 = st.columns(4)
@@ -884,7 +1131,7 @@ def render_admin_portal():
                 <div class="kpi-accent" style="background: #10b981;"></div>
                 <div class="kpi-icon-box" style="background: #ecfdf5; color: #059669;">✅</div>
                 <div class="kpi-title">التقارير المكتملة</div>
-                <div class="kpi-value">{done_count} / {total_emp}</div>
+                <div class="kpi-value"><bdi dir="ltr">{done_count} / {total_emp}</bdi></div>
                 <span class="kpi-sub" style="background: #ecfdf5; color: #047857;">نسبة التسليم {(done_count/total_emp*100) if total_emp else 0:.0f}%</span>
             </div>
             """, unsafe_allow_html=True)
@@ -913,13 +1160,14 @@ def render_admin_portal():
             <div class="kpi-card">
                 <div class="kpi-accent" style="background: #8b5cf6;"></div>
                 <div class="kpi-icon-box" style="background: #f5f3ff; color: #6d28d9;">📈</div>
-                <div class="kpi-title">نسبة الالتزام بالمعايير (تقييم القسم)</div>
-                <div class="kpi-value">{avg_comp:.1f}%</div>
-                <span class="kpi-sub" style="background: #f5f3ff; color: #5b21b6;">خاص بلوحة رئيس القسم</span>
+                <div class="kpi-title">الالتزام في فرص الرصد الموثقة</div>
+                <div class="kpi-value" style="font-size: {'32px' if measurement['rate'] is not None else '23px'};">{compliance_text}</div>
+                <span class="kpi-sub" style="background: #f5f3ff; color: #5b21b6;">تم قياس {measurement['reports_measured']} من {done_count} تقارير</span>
             </div>
             """, unsafe_allow_html=True)
             
-        st.markdown("### 👨‍⚕️ متابعة حالة تسليم أعضاء قسم مكافحة العدوى الستة")
+        st.caption(f"طريقة الحساب: فرص الرصد المطابقة ÷ إجمالي الفرص القابلة للتقييم × 100. الفرص المطابقة: {measurement['passed']} | الإجمالي: {measurement['total']}. التقارير غير المقاسة لا تدخل في النسبة.")
+        st.markdown(f"### 👨‍⚕️ متابعة حالة تسليم أعضاء قسم مكافحة العدوى ({total_emp})")
         
         col_g1, col_g2 = st.columns(2)
         for idx, emp in enumerate(employees):
@@ -951,10 +1199,10 @@ def render_admin_portal():
                 with col_g2:
                     st.markdown(card_html, unsafe_allow_html=True)
 
-    # 2. استعراض التقارير + التحكم بنسبة الالتزام من قبل رئيس القسم فقط
+    # 2. استعراض التقارير وإدخال أعداد رصد موثقة، دون نسبة افتراضية أو تقديرية.
     with tab_details:
-        st.subheader("📑 مراجعة التقارير وتحديد نسبة الالتزام بمعايير مكافحة العدوى")
-        st.caption("مؤشر (📈 نسبة الالتزام بمعايير مكافحة العدوى المرصودة %) يظهر هنا لرئيس القسم فقط لتقييم واعتماد أداء كل وحدة.")
+        st.subheader("📑 مراجعة التقارير وتوثيق بيانات الالتزام")
+        st.caption("أدخل عدد فرص الرصد المطابقة وإجمالي الفرص القابلة للتقييم من نموذج التدقيق الفعلي. تُحسب النسبة تلقائياً، وتُجمع الفرص لحساب مؤشر القسم.")
         
         selected_date = st.date_input(
             "📅 اختر تاريخاً ضمن الفترة المراد عرض تقاريرها",
@@ -964,17 +1212,7 @@ def render_admin_portal():
         sel_year, sel_week, _ = selected_date.isocalendar()
         st.caption(f"الفترة المعروضة: {reporting_period_text(sel_week, sel_year)}")
             
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("""
-        SELECT r.*, u.full_name, u.section, u.photo_url 
-        FROM weekly_reports r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.week_num = ? AND r.year = ?
-        ORDER BY r.id DESC
-        """, (sel_week, sel_year))
-        filtered_reports = [dict(row) for row in c.fetchall()]
-        conn.close()
+        filtered_reports = load_period_reports(sel_week, sel_year)
         
         if not filtered_reports:
             st.info(f"لا توجد تقارير مرفوعة للفترة {reporting_period_text(sel_week, sel_year)} حتى الآن.")
@@ -985,31 +1223,42 @@ def render_admin_portal():
                     with c_info1:
                         st.info(f"🔍 **عدد الجولات الميدانية المنفذة:** `{r['audits_count']}` جولات")
                     with c_info2:
+                        if has_verified_measurement(r):
+                            st.success(f"الالتزام المرصود: {100 * r['compliance_checks_passed'] / r['compliance_checks_total']:.1f}% — {r['compliance_checks_passed']} من {r['compliance_checks_total']} فرصة")
+                            st.caption(f"آخر توثيق: {r['compliance_reviewed_at']} | المرجع: {r['compliance_evidence']}")
+                        else:
+                            st.info('لم تُدخل بيانات رصد موثقة لهذا التقرير. لا تدخل النسب الافتراضية السابقة في المؤشر.')
                         with st.form(f"admin_comp_form_{r['id']}"):
-                            new_comp = st.slider(
-                                "📈 نسبة الالتزام بمعايير مكافحة العدوى المرصودة (%) — (تقييم رئيس القسم)",
-                                min_value=0.0, max_value=100.0, value=float(r['compliance_rate'])
+                            total = st.number_input(
+                                'إجمالي فرص الرصد القابلة للتقييم', min_value=0,
+                                value=int(r.get('compliance_checks_total') or 0), step=1, key=f"checks_total_{r['id']}"
                             )
-                            if st.form_submit_button("💾 اعتماد نسبة الالتزام"):
-                                conn = get_db_connection()
-                                c = conn.cursor()
-                                c.execute("UPDATE weekly_reports SET compliance_rate = ? WHERE id = ?", (new_comp, r['id']))
-                                conn.commit()
-                                conn.close()
-                                st.success("تم تحديث واعتماد نسبة الالتزام بنجاح!")
-                                st.rerun()
-                                
-                    st.markdown("**1️⃣ الإنجازات والأعمال المنفذة:**")
-                    st.write(r['accomplishments'])
-                    st.markdown("**2️⃣ التحديات والملاحظات الحرجة:**")
-                    st.write(r['challenges'] if r['challenges'] else "لا توجد ملاحظات مسجلة")
-                    st.markdown("**3️⃣ خطة الأسبوع القادم:**")
-                    st.write(r['next_week_plan'] if r['next_week_plan'] else "لا توجد خطة مسجلة")
+                            passed = st.number_input(
+                                'فرص الرصد المطابقة للمعايير', min_value=0,
+                                value=int(r.get('compliance_checks_passed') or 0), step=1, key=f"checks_passed_{r['id']}"
+                            )
+                            evidence = st.text_input('مرجع بيانات الرصد', value=r.get('compliance_evidence') or '',
+                                placeholder='مثال: نموذج تدقيق نظافة الأيدي بتاريخ 02/11/2026', max_chars=500, key=f"checks_source_{r['id']}")
+                            if st.form_submit_button("💾 حفظ بيانات الرصد وحساب الالتزام"):
+                                try:
+                                    save_compliance_measurement(r['id'], total, passed, evidence)
+                                except (ValueError, PermissionError) as exc:
+                                    st.error(str(exc))
+                                else:
+                                    st.session_state.portal_notice = 'تم حفظ بيانات الرصد وتحديث المؤشر ✅'
+                                    st.rerun()
+                        if has_verified_measurement(r) and st.button('إلغاء بيانات القياس لهذا التقرير', key=f"clear_measurement_{r['id']}"):
+                            clear_compliance_measurement(r['id'])
+                            for field in ('checks_total', 'checks_passed', 'checks_source'):
+                                st.session_state.pop(f"{field}_{r['id']}", None)
+                            st.session_state.portal_notice = 'تم إلغاء القياس؛ التقرير محفوظ ولا يدخل في نسبة الالتزام حتى إدخال قياس جديد.'
+                            st.rerun()
+                    render_saved_answers(r)
 
     # 3. التقرير التنفيذي الموحد
     with tab_ai:
         st.subheader("📋 التقرير التنفيذي الموحد لقسم مكافحة العدوى")
-        st.write("يقوم النظام بدمج وتحليل كافة تقارير الأعضاء الستة وتوليد خلاصة تنفيذية شاملة جاهزة للطباعة أو العرض الإداري.")
+        st.write("يجمع النظام تقارير الأعضاء وإجاباتهم، ويستخدم نفس بيانات الرصد والحساب المعروضين في لوحة القيادة.")
         
         summary_date = st.date_input(
             "📅 اختر تاريخاً ضمن الفترة المراد تلخيصها",
@@ -1019,18 +1268,8 @@ def render_admin_portal():
         ai_year, ai_week, _ = summary_date.isocalendar()
         st.caption(f"فترة التقرير التنفيذي: {reporting_period_text(ai_week, ai_year)}")
             
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("""
-        SELECT r.*, u.full_name, u.section 
-        FROM weekly_reports r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.week_num = ? AND r.year = ?
-        """, (ai_week, ai_year))
-        target_reports = [dict(row) for row in c.fetchall()]
-        conn.close()
-        
-        st.markdown(f"**التقارير المستلمة الجاهزة للدمج:** `{len(target_reports)}` من أصل `6`")
+        target_reports = load_period_reports(ai_week, ai_year)
+        st.markdown(f"**التقارير المستلمة الجاهزة للدمج:** `{len(target_reports)}` من أصل `{len(load_team_members())}`")
         
         if st.button("✨ إصدار التقرير التنفيذي الموحد الآن", use_container_width=True):
             if not target_reports:
@@ -1084,6 +1323,9 @@ def render_admin_portal():
                         st.success(f"✅ تم تحديث بيانات {new_name} بنجاح!")
                         st.rerun()
 
+    with tab_questions:
+        render_question_settings()
+
 # ---------------------------------------------------------
 # 1. شاشة تسجيل الدخول المحمية (بدون كشف أي حسابات أو أرقام سرية للزوار)
 # ---------------------------------------------------------
@@ -1093,6 +1335,7 @@ if not st.session_state.authenticated:
         st.markdown("""
         <div class="login-wrapper">
             <div class="login-visual-header">
+                <div class="brand-line">تجمع القصيم الصحي <span>•</span> شركة الصحة القابضة</div>
                 <div class="live-indicator" style="margin-bottom: 10px;">
                     <span class="live-dot"></span> بوابة إلكترونية آمنة ومشفرة
                 </div>
@@ -1193,6 +1436,9 @@ with st.sidebar:
 # البانر البانورامي المصور
 st.markdown(f"""
 <div class="exec-banner">
+    <div class="ic-banner-art">{INFECTION_CONTROL_ART}</div>
+    <div class="banner-content">
+    <div class="brand-line">تجمع القصيم الصحي <span>•</span> شركة الصحة القابضة</div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
         <div>
             <div class="live-indicator">
@@ -1205,6 +1451,7 @@ st.markdown(f"""
             <div class="date-label">📅 الفترة التقريرية الحالية</div>
             <div class="date-value">{reporting_period_text(current_week, current_year)}</div>
         </div>
+    </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
