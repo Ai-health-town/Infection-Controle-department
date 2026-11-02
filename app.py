@@ -435,6 +435,112 @@ st.markdown("""
         .ic-banner-art { width: 65%; opacity: 0.12; }
         .brand-line { font-size: 12px; }
     }
+
+    /* الإصدار البصري: كحلي عميق، أخضر طبي، وتفاصيل ذهبية هادئة */
+    .stApp {
+        background-color: #f3f6fa;
+        background-image: radial-gradient(ellipse at 95% 0%, #dcefeb 0%, transparent 42%),
+                          radial-gradient(ellipse at 0% 60%, #e8edf8 0%, transparent 45%);
+    }
+    .block-container { max-width: 1580px; padding-top: 2.6rem; }
+    .exec-banner {
+        padding: 34px;
+        border-radius: 30px;
+        background: radial-gradient(ellipse at 0% 0%, rgba(45, 212, 191, .18), transparent 55%),
+                    linear-gradient(120deg, #081726 0%, #0a333c 55%, #0d5c5b 100%);
+        box-shadow: 0 25px 60px -25px rgba(7, 30, 43, .5);
+        border-top: 1px solid rgba(226, 200, 145, .5);
+    }
+    .hero-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(250px, .8fr); gap: 32px; align-items: center; }
+    .hero-copy { min-width: 0; }
+    .brand-line { color: #e5d2a7; font-size: 14px; line-height: 1.8; }
+    .brand-line span { color: #9fb6af; }
+    .hero-copy h1 { font-size: clamp(25px, 2.5vw, 35px) !important; margin-top: 20px !important; }
+    .hero-copy p { color: #c7d9df !important; font-size: 15px !important; line-height: 1.9; }
+    .hero-photo {
+        min-height: 260px;
+        height: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(226, 200, 145, .5);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, .2);
+        background: #0c4a50;
+    }
+    .hero-photo img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; opacity: .72; filter: saturate(.7); animation: clinicalZoom 18s ease-in-out infinite alternate; }
+    .hero-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(5, 28, 39, .96), transparent 75%); }
+    .hero-photo-caption { position: absolute; z-index: 2; bottom: 23px; right: 23px; left: 23px; color: #fff; }
+    .hero-photo-caption strong { font-size: 22px; display: block; }
+    .hero-photo-caption span { color: #a7f3d0; font-size: 12px; letter-spacing: .4px; }
+    .hero-shield { position: absolute; z-index: 2; width: 82px; height: 82px; top: 14px; left: 14px; animation: floatSlow 7s ease-in-out infinite; }
+    .hero-shield svg { width: 100%; height: 100%; }
+    .hero-bottom { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; margin-top: 26px; padding-top: 23px; border-top: 1px solid rgba(255, 255, 255, .12); }
+    .hero-bottom .portal-date { margin-bottom: 0; padding: 11px 18px; background: #effbf7; }
+    .hero-bottom .portal-date .date-value { font-size: 18px; }
+    .hero-policy { color: #d1e2e5; font-size: 13px; line-height: 1.9; }
+    .hero-policy strong { color: #e5d2a7; display: block; font-size: 14px; }
+    .unit-gallery-card { height: 185px; border-radius: 22px; isolation: isolate; border: 1px solid #dce5ea; box-shadow: 0 12px 24px -16px rgba(8, 23, 38, .55); }
+    .gallery-image { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform .6s ease, filter .6s ease; filter: saturate(.65); }
+    .unit-gallery-card:hover { transform: translateY(-4px); }
+    .unit-gallery-card:hover .gallery-image { transform: scale(1.07); filter: saturate(.9); }
+    .unit-overlay { background: linear-gradient(0deg, rgba(7, 25, 39, .97), rgba(7, 25, 39, .12)); padding: 20px; }
+    .unit-overlay h5 { margin-top: 5px !important; font-size: 18px !important; }
+    .unit-overlay .gallery-number { position: absolute; top: 15px; left: 17px; border: 1px solid rgba(255,255,255,.35); color: #fff !important; background: rgba(5, 28, 39, .3); width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; backdrop-filter: blur(8px); }
+    .deadline-card { background: linear-gradient(110deg, #fff, #f8fcfb); border: 1px solid #d9e7e4; border-right: 4px solid #b89b60; border-radius: 20px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 4px 0 22px; box-shadow: 0 10px 28px -22px #0a333c; }
+    .eyebrow { color: #8b7348; font-size: 12px; font-weight: 800; }
+    .deadline-card h4 { color: #102d40 !important; font-size: 19px !important; margin: 5px 0 !important; }
+    .deadline-card p { color: #5e7280 !important; font-size: 12px !important; margin: 0; }
+    .deadline-badge { background: #e8f8f1; color: #06694f; border: 1px solid #b9e6d5; border-radius: 99px; padding: 8px 15px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .deadline-badge.closed { background: #f1f4f7; border-color: #d9e1e8; color: #516578; }
+    .report-workflow { display: grid; grid-template-columns: repeat(3, 1fr); background: #fff; border: 1px solid #e0e8ed; border-radius: 18px; padding: 14px; gap: 12px; margin: 20px 0 12px; }
+    .workflow-step { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; color: #8796a1; }
+    .workflow-step strong { display: block; font-size: 14px; }
+    .workflow-step small { display: block; font-size: 11px; margin-top: 3px; }
+    .workflow-icon { width: 34px; height: 34px; border: 1px solid #e3e9ed; background: #f7f9fb; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; font-size: 17px; }
+    .workflow-step.active { background: #eef9f5; color: #0a6656; }
+    .workflow-step.active .workflow-icon { background: #0c796b; color: #fff; border-color: #0c796b; box-shadow: 0 5px 12px rgba(12,121,107,.15); }
+    [data-testid="stForm"] { background: #fff; border: 1px solid #dce6ec; border-radius: 24px; padding: 26px; box-shadow: 0 12px 38px -30px rgba(8, 23, 38, .5); }
+    [data-testid="stForm"] h4 { color: #14394b; }
+    [data-testid="stForm"] textarea, [data-testid="stForm"] input { color: #173348 !important; -webkit-text-fill-color: #173348 !important; background: #f7fafc !important; }
+    [data-testid="stForm"] textarea { line-height: 1.8 !important; border-radius: 12px; }
+    [data-testid="stForm"] textarea:focus, [data-testid="stForm"] input:focus { box-shadow: 0 0 0 2px rgba(13,148,136,.12) !important; }
+    [data-testid="stFormSubmitButton"] button { border-radius: 13px !important; min-height: 48px; font-family: 'Tajawal', sans-serif !important; font-weight: 800 !important; transition: transform .2s ease, box-shadow .2s ease !important; }
+    [data-testid="stFormSubmitButton"] button[kind="primaryFormSubmit"] { background: linear-gradient(125deg, #0c796b, #135d7e) !important; color: #fff !important; border: none !important; box-shadow: 0 8px 18px -8px #0f766e; }
+    [data-testid="stFormSubmitButton"] button[kind="secondaryFormSubmit"] { background: #f1f7f6 !important; color: #185f56 !important; border: 1px solid #cfe1dc !important; }
+    [data-testid="stFormSubmitButton"] button:hover { transform: translateY(-2px); }
+    [data-baseweb="tab-list"] { gap: 5px; padding: 5px 2px; }
+    button[data-baseweb="tab"] { border-radius: 12px; padding: 12px 16px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0c796b !important; background: #e9f5f0; }
+    [data-baseweb="tab-highlight"] { background-color: #0c796b !important; }
+    [data-testid="stExpander"] { background: rgba(255,255,255,.85); border: 1px solid #dce6ec; border-radius: 18px; overflow: hidden; margin-bottom: 10px; }
+    section[data-testid="stSidebar"] [data-testid="stExpander"] { background: rgba(255,255,255,.025); border-color: rgba(255,255,255,.12); }
+    .sidebar-profile { border-top: 1px solid rgba(226,200,145,.35); box-shadow: 0 16px 30px -24px #000; }
+    .member-card { border-radius: 22px; box-shadow: 0 10px 30px -24px rgba(8,23,38,.4); }
+    .kpi-card { border-radius: 23px; }
+    @keyframes clinicalZoom { from { transform: scale(1); } to { transform: scale(1.06); } }
+    @media (max-width: 900px) {
+        .hero-layout { grid-template-columns: 1fr; gap: 22px; }
+        .hero-photo { height: 180px; min-height: 180px; }
+        .hero-photo-caption strong { font-size: 20px; }
+        .exec-banner { padding: 25px; }
+    }
+    @media (max-width: 640px) {
+        .block-container { padding-top: 1.5rem; }
+        .exec-banner { padding: 22px 18px; border-radius: 24px; }
+        .hero-bottom { gap: 15px; }
+        .hero-bottom .portal-date { width: 100%; }
+        .hero-photo { height: 150px; min-height: 150px; }
+        .unit-gallery-card { height: 155px; }
+        .deadline-card { flex-wrap: wrap; padding: 17px; }
+        .report-workflow { padding: 7px; gap: 3px; }
+        .workflow-step { flex-direction: column; text-align: center; gap: 7px; padding: 8px 2px; }
+        .workflow-step strong { font-size: 12px; }
+        .workflow-step small { font-size: 10px; }
+        [data-testid="stForm"] { padding: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -558,9 +664,17 @@ def init_db():
         "compliance_evidence": "TEXT NOT NULL DEFAULT ''",
         "compliance_reviewed_at": "TEXT DEFAULT NULL",
         "compliance_reviewed_by": "INTEGER DEFAULT NULL",
+        "report_status": "TEXT NOT NULL DEFAULT 'submitted'",
+        "first_submitted_at": "TEXT DEFAULT NULL",
+        "last_updated_at": "TEXT DEFAULT NULL",
+        "content_revision": "INTEGER NOT NULL DEFAULT 1",
     }.items():
         if column not in existing_columns:
             c.execute(f"ALTER TABLE weekly_reports ADD COLUMN {column} {definition}")
+    # ترحيل وقت الإرسال المتاح للسجلات السابقة دون إعادة فتح مهلة تعديلها.
+    c.execute("""UPDATE weekly_reports SET first_submitted_at = date_submitted
+                 WHERE report_status = 'submitted' AND first_submitted_at IS NULL""")
+    c.execute("UPDATE weekly_reports SET last_updated_at = date_submitted WHERE last_updated_at IS NULL")
     c.execute("""
         CREATE TABLE IF NOT EXISTS portal_settings (
             setting_key TEXT PRIMARY KEY,
@@ -606,6 +720,46 @@ DEFAULT_PHOTO = TEAM_MEMBERS_SEED[0][-1]
 
 def portal_now():
     return datetime.datetime.now(PORTAL_TIMEZONE)
+
+def parse_report_time(value):
+    if not value:
+        return None
+    try:
+        parsed = datetime.datetime.fromisoformat(value)
+        return parsed.replace(tzinfo=PORTAL_TIMEZONE) if parsed.tzinfo is None else parsed.astimezone(PORTAL_TIMEZONE)
+    except (TypeError, ValueError):
+        return None
+
+def format_portal_time(value):
+    parsed = parse_report_time(value) if isinstance(value, str) else value
+    return parsed.strftime('%d/%m/%Y — %I:%M %p').replace('AM', 'ص').replace('PM', 'م') if parsed else 'غير متاح'
+
+def submission_deadline(week, year):
+    thursday = datetime.date.fromisocalendar(int(year), int(week), 4)
+    return datetime.datetime.combine(thursday, datetime.time(17, 0), tzinfo=PORTAL_TIMEZONE)
+
+def report_edit_state(report, now=None):
+    now = now or portal_now()
+    report = dict(report)
+    if report.get('report_status', 'submitted') == 'draft':
+        try:
+            deadline = submission_deadline(report['week_num'], report['year'])
+        except (TypeError, ValueError):
+            return False, None, 'الفترة المحفوظة غير صالحة للتعديل.'
+        return now < deadline, deadline, 'انتهى موعد إرسال هذه المسودة؛ أصبحت للقراءة فقط.'
+    sent_at = parse_report_time(report.get('first_submitted_at') or report.get('date_submitted'))
+    if sent_at is None:
+        return False, None, 'لا يوجد وقت إرسال صالح؛ التقرير للقراءة فقط.'
+    expires_at = sent_at + datetime.timedelta(hours=48)
+    return sent_at <= now < expires_at, expires_at, 'انتهت مهلة التعديل البالغة ٤٨ ساعة من أول إرسال. التقرير مثبّت للقراءة فقط.'
+
+def remaining_time(until, now=None):
+    minutes = max(0, int((until - (now or portal_now())).total_seconds() // 60))
+    if minutes < 1:
+        return 'أقل من دقيقة'
+    days, rest = divmod(minutes, 24 * 60)
+    hours, mins = divmod(rest, 60)
+    return ' و'.join(part for part in (f'{days} يوم' if days else '', f'{hours} ساعة' if hours else '', f'{mins} دقيقة' if mins else '') if part)
 
 def reporting_period_text(week_num, year):
     try:
@@ -770,39 +924,70 @@ def render_saved_answers(report):
         st.markdown(f"**{index}. {q['label']}**")
         st.write(answers.get(q['id'], '').strip() or 'لم تُسجّل إجابة لهذه الخانة.')
 
-def save_weekly_report(questions, new_answers, audits_count):
+def save_weekly_report(questions, new_answers, audits_count, *, submit=True, report_id=None, expected_revision=None):
     if not st.session_state.get('authenticated') or not st.session_state.get('user'):
         raise PermissionError("يرجى تسجيل الدخول أولاً.")
-    active_questions = [q for q in questions if q['active']]
-    for q in active_questions:
-        if q['required'] and not new_answers.get(q['id'], '').strip():
-            raise ValueError(f"يرجى الإجابة عن السؤال المطلوب: {q['label']}")
     if not isinstance(audits_count, int) or not 0 <= audits_count <= 250:
         raise ValueError("عدد الجولات غير صالح.")
-    year, week, _ = portal_now().date().isocalendar()
     user_id = st.session_state.user['id']
     conn = get_db_connection()
     try:
         # منع إنشاء تقريرين لنفس العضو والفترة عند الإرسال من جلستين متزامنتين.
         conn.execute("BEGIN IMMEDIATE")
         with conn:
-            old = conn.execute("""SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ?
-                                  ORDER BY date_submitted DESC, id DESC LIMIT 1""", (user_id, week, year)).fetchone()
+            # تُفحص الساعة بعد الحصول على قفل الكتابة، حتى لو بقي النموذج مفتوحاً.
+            now = portal_now()
+            year, week, _ = now.date().isocalendar()
+            if report_id is not None:
+                old = conn.execute('SELECT * FROM weekly_reports WHERE id = ? AND user_id = ?', (report_id, user_id)).fetchone()
+                if old is None:
+                    raise PermissionError('لا يمكنك تعديل تقرير لا يخص حسابك.')
+                year, week = old['year'], old['week_num']
+            else:
+                old = conn.execute("""SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ?
+                                      ORDER BY date_submitted DESC, id DESC LIMIT 1""", (user_id, week, year)).fetchone()
+            if expected_revision is not None and expected_revision != (old['content_revision'] if old else 0):
+                raise ValueError('تغيّر التقرير من نافذة أخرى. حدّث الصفحة ثم افتح أحدث نسخة من الأرشيف.')
+            submitted_before = old is not None and old['report_status'] == 'submitted'
+            if submitted_before:
+                allowed, _, reason = report_edit_state(old, now)
+                if not allowed:
+                    raise ValueError(reason)
+                if not submit:
+                    raise ValueError('التقرير مُرسل بالفعل؛ لا يمكن تحويله إلى مسودة.')
+                _, saved_questions = report_answers_and_questions(old)
+                active_questions = [dict(q, active=True) for q in saved_questions]
+            else:
+                if now >= submission_deadline(week, year):
+                    raise ValueError('أُغلق إرسال تقارير هذه الفترة يوم الخميس الساعة ٥:٠٠ مساءً بتوقيت السعودية.')
+                active_questions = [q for q in questions if q['active']]
+            if submit:
+                for q in active_questions:
+                    if q['required'] and not new_answers.get(q['id'], '').strip():
+                        raise ValueError(f"يرجى الإجابة عن السؤال المطلوب: {q['label']}")
             answers, old_questions = report_answers_and_questions(old) if old else ({}, [])
             answers.update({q['id']: new_answers.get(q['id'], '').strip() for q in active_questions})
             active_ids = {q['id'] for q in active_questions}
             snapshot = active_questions + [q for q in old_questions if q['id'] not in active_ids and answers.get(q['id'], '').strip()]
+            status = 'submitted' if submit else 'draft'
+            first_sent = old['first_submitted_at'] if submitted_before else (now.isoformat() if submit else None)
+            submitted_display = old['date_submitted'] if submitted_before else now.strftime('%Y-%m-%d %H:%M')
             values = (answers.get('accomplishments', ''), answers.get('challenges', ''), answers.get('next_week_plan', ''),
-                      audits_count, portal_now().strftime('%Y-%m-%d %H:%M'),
-                      json.dumps(snapshot, ensure_ascii=False), json.dumps(answers, ensure_ascii=False))
+                      audits_count, submitted_display, json.dumps(snapshot, ensure_ascii=False), json.dumps(answers, ensure_ascii=False),
+                      status, first_sent, now.isoformat())
             if old:
                 conn.execute("""UPDATE weekly_reports SET accomplishments = ?, challenges = ?, next_week_plan = ?,
-                                audits_count = ?, date_submitted = ?, form_snapshot = ?, answers_json = ? WHERE id = ?""",
+                                audits_count = ?, date_submitted = ?, form_snapshot = ?, answers_json = ?,
+                                report_status = ?, first_submitted_at = ?, last_updated_at = ?, content_revision = content_revision + 1 WHERE id = ?""",
                              (*values, old['id']))
+                saved_id = old['id']
             else:
-                conn.execute("""INSERT INTO weekly_reports (accomplishments, challenges, next_week_plan, audits_count,
-                                date_submitted, form_snapshot, answers_json, user_id, week_num, year, compliance_rate)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)""", (*values, user_id, week, year))
+                cursor = conn.execute("""INSERT INTO weekly_reports (accomplishments, challenges, next_week_plan, audits_count,
+                                date_submitted, form_snapshot, answers_json, report_status, first_submitted_at, last_updated_at,
+                                user_id, week_num, year, compliance_rate)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)""", (*values, user_id, week, year))
+                saved_id = cursor.lastrowid
+        return saved_id
     finally:
         conn.close()
 
@@ -819,9 +1004,10 @@ def load_period_reports(week, year):
         return [dict(row) for row in conn.execute("""
             SELECT r.*, u.full_name, u.section, u.username, u.badge_color, u.photo_url
             FROM weekly_reports r JOIN users u ON r.user_id = u.id
-            WHERE r.week_num = ? AND r.year = ? AND LOWER(u.username) != 'admin'
+            WHERE r.week_num = ? AND r.year = ? AND LOWER(u.username) != 'admin' AND r.report_status = 'submitted'
               AND r.id = (SELECT newer.id FROM weekly_reports newer
                           WHERE newer.user_id = r.user_id AND newer.week_num = r.week_num AND newer.year = r.year
+                            AND newer.report_status = 'submitted'
                           ORDER BY newer.date_submitted DESC, newer.id DESC LIMIT 1)
             ORDER BY u.id
         """, (week, year))]
@@ -831,7 +1017,8 @@ def load_period_reports(week, year):
 def has_verified_measurement(report):
     total = report.get('compliance_checks_total')
     passed = report.get('compliance_checks_passed')
-    return (isinstance(total, int) and isinstance(passed, int) and total > 0 and 0 <= passed <= total
+    return (report.get('report_status', 'submitted') == 'submitted'
+            and isinstance(total, int) and isinstance(passed, int) and total > 0 and 0 <= passed <= total
             and bool(report.get('compliance_reviewed_at')) and report.get('compliance_reviewed_by') is not None
             and bool((report.get('compliance_evidence') or '').strip()))
 
@@ -852,7 +1039,7 @@ def save_compliance_measurement(report_id, total, passed, evidence):
         with conn:
             admin_id = require_admin(conn)
             result = conn.execute("""UPDATE weekly_reports SET compliance_checks_total = ?, compliance_checks_passed = ?,
-                compliance_evidence = ?, compliance_reviewed_at = ?, compliance_reviewed_by = ?, compliance_rate = ? WHERE id = ?""",
+                compliance_evidence = ?, compliance_reviewed_at = ?, compliance_reviewed_by = ?, compliance_rate = ? WHERE id = ? AND report_status = 'submitted'""",
                 (total, passed, evidence.strip(), portal_now().isoformat(timespec='minutes'), admin_id, 100 * passed / total, report_id))
             if result.rowcount != 1:
                 raise ValueError("لم يتم العثور على التقرير.")
@@ -987,112 +1174,146 @@ def logout():
 # ---------------------------------------------------------
 # دالة عرض واجهة الموظف (نموذج التقرير الأسبوعي بدون مؤشر نسبة الالتزام)
 # ---------------------------------------------------------
-def render_employee_portal(target_user):
-    today = portal_now().date()
-    current_year, current_week, _ = today.isocalendar()
-    questions, question_revision = load_question_settings()
-    
-    # معرض مصور لأقسام مكافحة العدوى يضفي فخامة بصرية للمنصة
-    g1, g2, g3 = st.columns(3)
-    with g1:
-        st.markdown("""
-        <div class="unit-gallery-card" style="background: url('https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=700&q=80') center/cover;">
-            <div class="unit-overlay">
-                <span>الرصد الوقائي</span>
-                <h5>الترصد الوبائي والجولات الميدانية</h5>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    with g2:
-        st.markdown("""
-        <div class="unit-gallery-card" style="background: url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80') center/cover;">
-            <div class="unit-overlay">
-                <span>الجودة والسلامة</span>
-                <h5>كفاءة التعقيم المركزي وسلامة البيئة</h5>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    with g3:
-        st.markdown("""
-        <div class="unit-gallery-card" style="background: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=700&q=80') center/cover;">
-            <div class="unit-overlay">
-                <span>التعليم الطبي المستمر</span>
-                <h5>الممارسات الوقائية وصحة العاملين</h5>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+def render_infection_gallery():
+    units = [
+        ('01', 'الترصد الوبائي', 'نرصد مبكراً، لنحمي أكثر', 'photo-1584515979956-d9f6e5d09982'),
+        ('02', 'الممارسات الآمنة', 'التعقيم وسلامة البيئة', 'photo-1579684385127-1ef15d508118'),
+        ('03', 'وعي يصنع الأثر', 'التدريب وصحة العاملين', 'photo-1576091160550-2173dba999ef'),
+    ]
+    for column, (number, title, subtitle, photo) in zip(st.columns(3), units):
+        with column:
+            st.markdown(f'''<div class="unit-gallery-card">
+<div class="gallery-image" style="background-image:url('https://images.unsplash.com/{photo}?auto=format&fit=crop&w=800&q=85');"></div>
+<div class="unit-overlay"><span class="gallery-number">{number}</span><span>{subtitle}</span><h5>{title}</h5></div>
+</div>''', unsafe_allow_html=True)
 
-    tab_submit, tab_history = st.tabs(["📝 رفع التقرير الأسبوعي", "📂 أرشيف تقاريري السابقة"])
-    
-    with tab_submit:
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("SELECT * FROM weekly_reports WHERE user_id = ? AND week_num = ? AND year = ? ORDER BY date_submitted DESC, id DESC LIMIT 1",
-                  (target_user['id'], current_week, current_year))
-        existing_report = c.fetchone()
-        conn.close()
-        
-        if existing_report:
-            st.success(f"✅ تم استلام تقريرك للفترة {reporting_period_text(current_week, current_year)} بتاريخ {existing_report['date_submitted']}. يمكنك تعديل وتحديث التقرير:")
-            
-        saved_answers, _ = report_answers_and_questions(existing_report) if existing_report else ({}, [])
-        with st.form(f"emp_report_form_{target_user['id']}_{current_year}_{current_week}_{question_revision}"):
-            st.markdown("#### 📅 الفترة الزمنية والنشاط الميداني")
-            # تُحسب الفترة تلقائياً؛ لا حاجة لإدخال رقم الأسبوع أو السنة يدوياً.
-            c_w1, c_w2 = st.columns(2)
-            with c_w1:
-                st.markdown(f"""
-                <div class="portal-date">
-                    <div class="date-label">📅 تاريخ التقرير</div>
-                    <div class="date-value">{today:%d/%m/%Y}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                st.caption(f"الفترة الأسبوعية: {reporting_period_text(current_week, current_year)} — تُحدد تلقائياً.")
-            with c_w2:
-                audits_count = st.number_input(
-                    "🔍 عدد الجولات الميدانية / التدقيقات المنفذة",
-                    min_value=0, max_value=250,
-                    value=existing_report['audits_count'] if existing_report else 0
-                )
-                
-            st.markdown("#### 📋 تفاصيل التقرير الأسبوعي")
-            new_answers = {}
-            for index, q in enumerate((q for q in questions if q['active']), 1):
-                required_hint = ' *' if q['required'] else ''
-                new_answers[q['id']] = st.text_area(
-                    f"{index}. {q['label']}{required_hint}",
-                    value=saved_answers.get(q['id'], ''), placeholder=q.get('placeholder', ''),
-                    height=135 if index == 1 else 110,
-                    key=f"answer_{target_user['id']}_{current_year}_{current_week}_{q['id']}_{question_revision}"
-                )
-            st.caption('* إجابة مطلوبة')
-            
-            save_report_btn = st.form_submit_button("🚀 اعتماد ورفع التقرير الأسبوعي", use_container_width=True)
-            if save_report_btn:
-                try:
-                    save_weekly_report(questions, new_answers, audits_count)
-                except (ValueError, PermissionError) as exc:
-                    st.error(str(exc))
-                else:
-                    st.balloons()
-                    st.success("🎉 تم رفع واعتماد تقريرك الأسبوعي بنجاح!")
-                    st.rerun()
-
-    with tab_history:
-        st.subheader("📚 أرشيف تقاريرك الأسبوعية السابقة")
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("SELECT * FROM weekly_reports WHERE user_id = ? ORDER BY year DESC, week_num DESC", (target_user['id'],))
-        my_reports = c.fetchall()
-        conn.close()
-        
-        if not my_reports:
-            st.info("لا توجد تقارير سابقة مسجلة في أرشيفك حتى الآن.")
+def render_report_status(report=None):
+    draft = report is None or report['report_status'] == 'draft'
+    allowed, until, reason = report_edit_state(report) if report else (True, None, '')
+    stage = 0 if draft else (1 if allowed else 2)
+    labels = [('✎', 'مسودة', 'قبل الإرسال'), ('✓', 'مُرسل', '٤٨ ساعة للتعديل'), ('🔒', 'مثبّت', 'للقراءة فقط')]
+    parts = ''.join(f'<div class="workflow-step {"active" if i == stage else ""}"><span class="workflow-icon">{icon}</span><div><strong>{label}</strong><small>{hint}</small></div></div>' for i, (icon, label, hint) in enumerate(labels))
+    st.markdown(f'<div class="report-workflow">{parts}</div>', unsafe_allow_html=True)
+    if report:
+        if draft:
+            st.caption(f"آخر حفظ للمسودة: {format_portal_time(report.get('last_updated_at'))}")
+            if not allowed:
+                st.warning(reason)
         else:
-            for rep in my_reports:
-                with st.expander(f"📅 تقرير الفترة {reporting_period_text(rep['week_num'], rep['year'])} — تاريخ الرفع: {rep['date_submitted']}"):
-                    st.markdown(f"**🔍 عدد الجولات الميدانية المنفذة:** `{rep['audits_count']}` جولات")
-                    render_saved_answers(rep)
+            st.caption(f"أول إرسال: {format_portal_time(report.get('first_submitted_at') or report['date_submitted'])} | آخر تحديث: {format_portal_time(report.get('last_updated_at'))}")
+            if allowed:
+                st.info(f"✏️ التعديل متاح حتى {format_portal_time(until)} — المتبقي: {remaining_time(until)}. تعديل التقرير لا يمدّد المهلة.")
+            else:
+                st.info(f"🔒 {reason}")
+
+def render_report_editor(target_user, report=None, context='current'):
+    now = portal_now()
+    year, week, _ = now.date().isocalendar()
+    if report:
+        allowed, _, reason = report_edit_state(report, now)
+        if not allowed:
+            st.warning(reason)
+            return
+        year, week = report['year'], report['week_num']
+    elif now >= submission_deadline(week, year):
+        st.warning('أُغلق إرسال تقارير هذه الفترة يوم الخميس الساعة ٥:٠٠ مساءً بتوقيت السعودية.')
+        return
+    already_sent = report is not None and report['report_status'] == 'submitted'
+    questions, config_revision = load_question_settings()
+    saved_answers, snapshot = report_answers_and_questions(report) if report else ({}, [])
+    if already_sent:
+        questions = [dict(q, active=True) for q in snapshot]
+        config_revision = 'sent'
+    revision = report['content_revision'] if report else 0
+    token = f"{context}_{target_user['id']}_{year}_{week}_{revision}_{config_revision}"
+    with st.form(f"report_form_{token}"):
+        st.markdown('#### ✦ تعديل التقرير المُرسل' if already_sent else '#### ✦ مساحة التقرير الأسبوعي')
+        info, count = st.columns([1.2, 1])
+        with info:
+            st.markdown(f'''<div class="portal-date"><div class="date-label">📅 الفترة التقريرية</div>
+<div class="date-value" style="font-size:17px;">{reporting_period_text(week, year)}</div></div>''', unsafe_allow_html=True)
+        with count:
+            audits = st.number_input('🔍 عدد الجولات الميدانية / التدقيقات المنفذة', min_value=0, max_value=250,
+                value=report['audits_count'] if report else 0, key=f'audits_{token}')
+        answers = {}
+        for index, question in enumerate((q for q in questions if q['active']), 1):
+            label = f"{index}. {question['label']}" + (' *' if question['required'] else '')
+            answers[question['id']] = st.text_area(label, value=saved_answers.get(question['id'], ''),
+                placeholder=question.get('placeholder', ''), height=145 if index == 1 else 115,
+                key=f"answer_{token}_{question['id']}")
+        st.caption('* مطلوب عند الإرسال. يمكنك حفظ المسودة قبل إكمال جميع الإجابات.' if not already_sent else '* إجابة مطلوبة. يبقى موعد أول إرسال ثابتاً بعد التعديل.')
+        draft_button = False
+        if already_sent:
+            send_button = st.form_submit_button('💾 حفظ تعديل التقرير', type='primary', use_container_width=True)
+        else:
+            send_column, draft_column = st.columns([1.6, 1])
+            with send_column:
+                send_button = st.form_submit_button('🚀 إرسال التقرير الأسبوعي', type='primary', use_container_width=True)
+            with draft_column:
+                draft_button = st.form_submit_button('💾 حفظ المسودة', use_container_width=True)
+        if send_button or draft_button:
+            try:
+                save_weekly_report(questions, answers, audits, submit=not draft_button,
+                    report_id=report['id'] if report else None, expected_revision=revision)
+            except (ValueError, PermissionError) as exc:
+                st.error(str(exc))
+            else:
+                st.session_state.report_notice = ('تم حفظ المسودة. تجدها في التقارير السابقة والمسودات ✅' if draft_button else
+                    'تم حفظ تعديل التقرير ضمن المهلة المحددة ✅' if already_sent else 'تم إرسال التقرير. يمكنك تعديله من الأرشيف خلال ٤٨ ساعة من الآن ✅')
+                st.session_state.pop('editing_report_id', None)
+                st.rerun()
+
+def render_employee_portal(target_user):
+    now = portal_now()
+    year, week, _ = now.date().isocalendar()
+    deadline = submission_deadline(week, year)
+    conn = get_db_connection()
+    try:
+        reports = [dict(row) for row in conn.execute('SELECT * FROM weekly_reports WHERE user_id = ? ORDER BY year DESC, week_num DESC, id DESC', (target_user['id'],))]
+    finally:
+        conn.close()
+    current = next((r for r in sorted(reports, key=lambda r: (r['date_submitted'], r['id']), reverse=True) if r['year'] == year and r['week_num'] == week), None)
+    if st.session_state.get('report_notice'):
+        st.success(st.session_state.pop('report_notice'))
+    render_infection_gallery()
+    deadline_label = 'الإرسال مفتوح' if now < deadline else 'أُغلق الإرسال لهذه الفترة'
+    deadline_detail = f'المتبقي للإرسال: {remaining_time(deadline, now)}' if now < deadline else 'التقارير المُرسلة تظل قابلة للتعديل حتى انتهاء مهلة كل تقرير.'
+    st.markdown(f'''<div class="deadline-card"><div><span class="eyebrow">الموعد الأسبوعي</span>
+<h4>الخميس، {deadline:%d/%m/%Y} · الساعة ٥:٠٠ مساءً</h4><p>بتوقيت السعودية · {deadline_detail}</p></div>
+<span class="deadline-badge {'closed' if now >= deadline else ''}">{deadline_label}</span></div>''', unsafe_allow_html=True)
+    tab_submit, tab_history = st.tabs(['📝 تقرير الأسبوع', '📂 التقارير السابقة والمسودات'])
+    with tab_submit:
+        render_report_status(current)
+        if current and current['report_status'] == 'submitted':
+            st.success('تم استلام تقرير هذه الفترة. تجد خيار التعديل في تبويب «التقارير السابقة والمسودات» خلال المهلة المتاحة.')
+            with st.expander('📄 معاينة التقرير المُرسل'):
+                st.write(f"الجولات المنفذة: {current['audits_count']}")
+                render_saved_answers(current)
+        else:
+            render_report_editor(target_user, current)
+    with tab_history:
+        st.markdown('### 📂 سجل تقاريرك')
+        st.caption('المسودات قابلة للتعديل والإرسال حتى الخميس ٥ مساءً. بعد أول إرسال تتاح ٤٨ ساعة للتعديل، ثم يُثبّت التقرير تلقائياً.')
+        if not reports:
+            st.info('لم تحفظ مسودة أو ترسل تقريراً بعد. ابدأ من تبويب تقرير الأسبوع.')
+        for report in reports:
+            allowed, _, _ = report_edit_state(report, now)
+            draft = report['report_status'] == 'draft'
+            status = ('✎ مسودة' if allowed else '🔒 مسودة مغلقة') if draft else ('✏️ مُرسل وقابل للتعديل' if allowed else '🔒 تقرير مثبّت')
+            selected = st.session_state.get('editing_report_id') == report['id']
+            with st.expander(f"{status} · {reporting_period_text(report['week_num'], report['year'])}", expanded=selected):
+                render_report_status(report)
+                if selected and allowed:
+                    render_report_editor(target_user, report, context=f"archive_{report['id']}")
+                    if st.button('إلغاء التعديل', key=f"cancel_report_{report['id']}"):
+                        st.session_state.pop('editing_report_id', None)
+                        st.rerun()
+                else:
+                    st.write(f"🔍 الجولات المنفذة: {report['audits_count']}")
+                    render_saved_answers(report)
+                    if allowed and st.button('✏️ تعديل المسودة' if draft else '✏️ تعديل التقرير', key=f"edit_report_{report['id']}", use_container_width=True):
+                        st.session_state.editing_report_id = report['id']
+                        st.rerun()
 
 # ---------------------------------------------------------
 # دالة عرض لوحة تحكم رئيس القسم / الأدمن (مع تقييم نسبة الالتزام خاص بالأدمن فقط)
@@ -1436,21 +1657,28 @@ with st.sidebar:
 # البانر البانورامي المصور
 st.markdown(f"""
 <div class="exec-banner">
-    <div class="ic-banner-art">{INFECTION_CONTROL_ART}</div>
     <div class="banner-content">
-    <div class="brand-line">تجمع القصيم الصحي <span>•</span> شركة الصحة القابضة</div>
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-        <div>
+    <div class="hero-layout">
+        <div class="hero-copy">
+            <div class="brand-line">تجمع القصيم الصحي <span>•</span> شركة الصحة القابضة</div>
             <div class="live-indicator">
-                <span class="live-dot"></span> نظام الرصد والتقارير الأسبوعية — قسم مكافحة العدوى
+                <span class="live-dot"></span> قسم مكافحة العدوى · منصة التقارير الأسبوعية
             </div>
             <h1>مرحباً بك، {escape(current_user['full_name'])}</h1>
-            <p>{escape(current_user['section'])} — بوابة رقمية متكاملة لمتابعة الأداء الوقائي، توثيق الجولات الميدانية، وتعزيز سلامة المرضى والعاملين.</p>
+            <p>{escape(current_user['section'])}<br/>كل جولة تُوثّق، وكل ممارسة آمنة تُحدث فرقاً في سلامة المرضى والعاملين.</p>
         </div>
-        <div class="portal-date" style="text-align: center; margin-bottom: 0;">
+        <div class="hero-photo">
+            <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&amp;fit=crop&amp;w=900&amp;q=85" alt="الوقاية والممارسات الصحية الآمنة"/>
+            <div class="hero-shield">{INFECTION_CONTROL_ART}</div>
+            <div class="hero-photo-caption"><span>INFECTION PREVENTION &amp; CONTROL</span><strong>وقاية تصنع الأثر</strong></div>
+        </div>
+    </div>
+    <div class="hero-bottom">
+        <div class="portal-date">
             <div class="date-label">📅 الفترة التقريرية الحالية</div>
             <div class="date-value">{reporting_period_text(current_week, current_year)}</div>
         </div>
+        <div class="hero-policy"><strong>الخميس، الساعة ٥:٠٠ مساءً</strong>آخر موعد للإرسال · التعديل متاح ٤٨ ساعة من أول إرسال</div>
     </div>
     </div>
 </div>
